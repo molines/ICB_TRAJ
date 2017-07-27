@@ -38,9 +38,9 @@ PROGRAM icb_traj_read
   PRINT *, ' VARIABLES :  '
   
   DO ji=1,ndim_n
-    IF ( icb_number(1,ji) == 0 )  THEN
+!    IF ( icb_number(1,ji) == 0 )  THEN
     PRINT '(5i10,3f12.4)', icb_number(:,ji),icb_stp(ji),icb_year(ji),dday(ji), dlon(ji), dlat(ji)
-    ENDIF
+!    ENDIF
   ENDDO
   
   
