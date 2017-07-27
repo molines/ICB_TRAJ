@@ -1,0 +1,47 @@
+   TYPE, PUBLIC ::   point              !: properties of an individual iceberg (position, mass, size, etc...)
+      INTEGER  ::   year
+      REAL(wp) ::   xi , yj                                              ! iceberg coordinates in the (i,j) referential (global)
+      REAL(wp) ::   e1 , e2                                              ! horizontal scale factors at the iceberg position
+      REAL(wp) ::   lon, lat, day                                        ! geographic position
+      REAL(wp) ::   mass, thickness, width, length, uvel, vvel           ! iceberg physical properties
+      REAL(wp) ::   uo, vo, ui, vi, ua, va, ssh_x, ssh_y, sst, cn, hi    ! properties of iceberg environment 
+      REAL(wp) ::   mass_of_bits, heat_density
+   END TYPE point
+
+   TYPE, PUBLIC ::   iceberg            !: linked list defining all the icebergs present in the model domain
+      TYPE(iceberg), POINTER      ::   prev=>NULL(), next=>NULL()   ! pointers to previous and next unique icebergs in linked list
+      INTEGER, DIMENSION(nkounts) ::   number                       ! variables which do not change for this iceberg
+      INTEGER                     ::   origin = 0                   ! Number of origin box correspondin to Sectors_Boxes
+      REAL(wp)                    ::   lon_origin                   ! Longitude from wich iceberg was released
+      REAL(wp)                    ::   lat_origin                   ! Latitude from wich iceberg was released 
+      REAL(wp)                    ::   mass_scaling                 !    -        -            -                -  
+      TYPE(point), POINTER        ::   current_point => NULL()      ! variables which change with time are held in a separate type
+   END TYPE iceberg
+
+
+
+      TYPE(iceberg), POINTER                :: this
+      TYPE(point)  , POINTER                :: pt
+
+
+      iret = NF90_DEF_DIM(ntrajid, 'n', NF90_UNLIMITED, n_dim)       
+      iret = NF90_DEF_DIM(ntrajid, 'k', nkounts, m_dim)
+!============================================
+      iret = NF90_DEF_VAR(ntrajid, 'iceberg_number', NF90_INT, (/m_dim,n_dim/), numberid)
+      iret = NF90_DEF_VAR(ntrajid, 'timestep', NF90_INT, n_dim, nstepid) 
+
+      iret = NF90_DEF_VAR(ntrajid, 'lon', NF90_DOUBLE, n_dim, nlonid)
+      iret = NF90_DEF_VAR(ntrajid, 'lat', NF90_DOUBLE, n_dim, nlatid)
+
+      iret = NF90_DEF_VAR(ntrajid, 'year', NF90_INT, n_dim, nyearid)
+      iret = NF90_DEF_VAR(ntrajid, 'day', NF90_DOUBLE, n_dim, ndayid)
+ !============================================  
+         iret = NF90_PUT_VAR(ntrajid, nlonid, pt%lon, (/ jn /) )
+         iret = NF90_PUT_VAR(ntrajid, nlatid, pt%lat, (/ jn /) )
+
+         iret = NF90_PUT_VAR(ntrajid, numberid, this%number, (/1,jn/), (/nkounts,1/) )
+         iret = NF90_PUT_VAR(ntrajid, nstepid, kt, (/ jn /) )
+
+
+         iret = NF90_PUT_VAR(ntrajid, nyearid, pt%year, (/ jn /) )
+         iret = NF90_PUT_VAR(ntrajid, ndayid, pt%day, (/ jn /) )
